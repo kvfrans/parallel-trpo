@@ -8,11 +8,13 @@ import copy
 from random import randint
 
 class Actor(multiprocessing.Process):
-    def __init__(self, args, task_q, result_q, actor_id):
+    def __init__(self, args, task_q, result_q, actor_id, monitor):
         multiprocessing.Process.__init__(self)
         self.task_q = task_q
         self.result_q = result_q
         self.args = args
+        self.monitor = monitor
+
 
     def act(self, obs):
         obs = np.expand_dims(obs, 0)
@@ -25,6 +27,8 @@ class Actor(multiprocessing.Process):
 
         self.env = gym.make(self.args.task)
         self.env.seed(randint(0,999999))
+        if self.monitor:
+            self.env.monitor.start('monitor/', force=True)
 
         # tensorflow variables (same as in model.py)
         self.observation_size = self.env.observation_space.shape[0]
@@ -45,7 +49,10 @@ class Actor(multiprocessing.Process):
         self.action_dist_mu = h3
         self.action_dist_logstd = tf.tile(action_dist_logstd_param, tf.pack((tf.shape(self.action_dist_mu)[0], 1)))
 
-        self.session = tf.Session()
+        config = tf.ConfigProto(
+            device_count = {'GPU': 0}
+        )
+        self.session = tf.Session(config=config)
         self.session.run(tf.initialize_all_variables())
         var_list = tf.trainable_variables()
 
@@ -59,6 +66,12 @@ class Actor(multiprocessing.Process):
                 path = self.rollout()
                 self.task_q.task_done()
                 self.result_q.put(path)
+            elif next_task == 2:
+                print "kill message"
+                if self.monitor:
+                    self.env.monitor.close()
+                self.task_q.task_done()
+                break
             else:
                 # the task is to set parameters of the actor policy
                 self.set_policy(next_task)
@@ -71,7 +84,7 @@ class Actor(multiprocessing.Process):
     def rollout(self):
         obs, actions, rewards, action_dists_mu, action_dists_logstd = [], [], [], [], []
         ob = filter(self.env.reset())
-        for i in xrange(self.args.max_pathlength):
+        for i in xrange(self.args.max_pathlength - 1):
             obs.append(ob)
             action, action_dist_mu, action_dist_logstd = self.act(ob)
             actions.append(action)
@@ -80,7 +93,7 @@ class Actor(multiprocessing.Process):
             res = self.env.step(action)
             ob = filter(res[0])
             rewards.append((res[1]))
-            if res[2] or i == self.args.max_pathlength - 1:
+            if res[2] or i == self.args.max_pathlength - 2:
                 path = {"obs": np.concatenate(np.expand_dims(obs, 0)),
                              "action_dists_mu": np.concatenate(action_dists_mu),
                              "action_dists_logstd": np.concatenate(action_dists_logstd),
@@ -96,13 +109,25 @@ class ParallelRollout():
         self.tasks = multiprocessing.JoinableQueue()
         self.results = multiprocessing.Queue()
 
-        self.actors = [Actor(self.args, self.tasks, self.results, 37*(i+3)) for i in xrange(self.args.num_threads)]
+        self.actors = []
+        self.actors.append(Actor(self.args, self.tasks, self.results, 9999, args.monitor))
+
+        for i in xrange(self.args.num_threads-1):
+            self.actors.append(Actor(self.args, self.tasks, self.results, 37*(i+3), False))
+
         for a in self.actors:
             a.start()
 
+        self.average_timesteps_in_episode = 20
+
     def rollout(self):
 
-        num_rollouts = self.args.timesteps_per_batch / self.args.max_pathlength
+        # num_rollouts = self.args.eps_per_batch
+
+        # hacky way to keep 20,000 timesteps per update
+        num_rollouts = 20000 / self.average_timesteps_in_episode
+        print num_rollouts
+
         for i in xrange(num_rollouts):
             self.tasks.put(1)
 
@@ -112,9 +137,15 @@ class ParallelRollout():
         while num_rollouts:
             num_rollouts -= 1
             paths.append(self.results.get())
+
+        self.average_timesteps_in_episode = sum([len(path["rewards"]) for path in paths]) / len(paths)
         return paths
 
     def set_policy_weights(self, parameters):
         for i in xrange(self.args.num_threads):
             self.tasks.put(parameters)
         self.tasks.join()
+
+    def end(self):
+        for i in xrange(self.args.num_threads):
+            self.tasks.put(2)

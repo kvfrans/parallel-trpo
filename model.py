@@ -27,7 +27,10 @@ class TRPO(multiprocessing.Process):
         weight_init = tf.random_uniform_initializer(-0.05, 0.05)
         bias_init = tf.constant_initializer(0)
 
-        self.session = tf.Session()
+        config = tf.ConfigProto(
+            device_count = {'GPU': 0}
+        )
+        self.session = tf.Session(config=config)
 
         self.obs = tf.placeholder(tf.float32, [None, self.observation_size])
         self.action = tf.placeholder(tf.float32, [None, self.action_size])
@@ -110,9 +113,9 @@ class TRPO(multiprocessing.Process):
                 self.task_q.task_done()
                 self.result_q.put(self.get_policy())
             else:
-                self.learn(paths)
+                mean_reward = self.learn(paths)
                 self.task_q.task_done()
-                self.result_q.put(self.get_policy())
+                self.result_q.put((self.get_policy(), mean_reward))
         return
 
     def learn(self, paths):
@@ -186,9 +189,12 @@ class TRPO(multiprocessing.Process):
         stats = {}
         stats["Average sum of rewards per episode"] = episoderewards.mean()
         stats["Entropy"] = entropy_after
+        stats["Timesteps"] = sum([len(path["rewards"]) for path in paths])
         # stats["Time elapsed"] = "%.2f mins" % ((time.time() - start_time) / 60.0)
         stats["KL between old and new distribution"] = kl_after
         stats["Surrogate loss"] = surrogate_after
         # print ("\n********** Iteration {} ************".format(i))
         for k, v in stats.iteritems():
             print(k + ": " + " " * (40 - len(k)) + str(v))
+
+        return stats["Average sum of rewards per episode"]
