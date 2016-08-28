@@ -6,7 +6,8 @@ I'm working towards the ideas at [this openAI research request](https://openai.c
 The code is based off of [this implementation](https://github.com/ilyasu123/trpo).
 
 How to run:
-```python main.py
+```
+python main.py
 ```
 Parameters:
 ```
