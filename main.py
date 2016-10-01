@@ -11,7 +11,7 @@ import json
 
 parser = argparse.ArgumentParser(description='Test the new good lib.')
 parser.add_argument("--task", type=str, default='Reacher-v1')
-parser.add_argument("--eps_per_batch", type=int, default=400)
+parser.add_argument("--timesteps_per_batch", type=int, default=20000)
 parser.add_argument("--max_pathlength", type=int, default=50)
 parser.add_argument("--n_iter", type=int, default=350)
 parser.add_argument("--gamma", type=float, default=.99)
