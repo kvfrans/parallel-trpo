@@ -118,14 +118,14 @@ class ParallelRollout():
         for a in self.actors:
             a.start()
 
-        self.average_timesteps_in_episode = 20
+        self.average_timesteps_in_episode = 1000
 
     def rollout(self):
 
         # num_rollouts = self.args.eps_per_batch
 
         # hacky way to keep 20,000 timesteps per update
-        num_rollouts = 20000 / self.average_timesteps_in_episode
+        num_rollouts = 500 / self.average_timesteps_in_episode
         print num_rollouts
 
         for i in xrange(num_rollouts):
