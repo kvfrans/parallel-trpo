@@ -11,11 +11,15 @@ import json
 
 parser = argparse.ArgumentParser(description='Test the new good lib.')
 parser.add_argument("--task", type=str, default='Reacher-v1')
-parser.add_argument("--timesteps_per_batch", type=int, default=20000)
-parser.add_argument("--max_pathlength", type=int, default=50)
+parser.add_argument("--timesteps_per_batch", type=int, default=10000)
+parser.add_argument("--timestep_increase", type=int, default=300)
+parser.add_argument("--timestep_decrease", type=int, default=100)
+parser.add_argument("--max_pathlength", type=int, default=1000)
 parser.add_argument("--n_iter", type=int, default=350)
 parser.add_argument("--gamma", type=float, default=.99)
 parser.add_argument("--max_kl", type=float, default=.001)
+parser.add_argument("--kl_increase", type=float, default=0.0005)
+parser.add_argument("--kl_decrease", type=float, default=0.0002)
 parser.add_argument("--cg_damping", type=float, default=1e-3)
 parser.add_argument("--num_threads", type=int, default=3)
 parser.add_argument("--monitor", type=bool, default=False)
@@ -40,6 +44,10 @@ history = {}
 history["rollout_time"] = []
 history["learn_time"] = []
 history["mean_reward"] = []
+history["timesteps"] = []
+
+# start it off with a big negative number
+last_reward = -1000000
 
 for iteration in xrange(args.n_iter):
 
@@ -54,6 +62,7 @@ for iteration in xrange(args.n_iter):
     # To solve this, we just make the learner's tf.Session in its own async process,
     # and wait until the learner's done before continuing the main thread.
     learn_start = time.time()
+    learner_tasks.put((2,args.max_kl))
     learner_tasks.put(paths)
     learner_tasks.join()
     new_policy_weights, mean_reward = learner_results.get()
@@ -64,6 +73,23 @@ for iteration in xrange(args.n_iter):
     history["rollout_time"].append(rollout_time)
     history["learn_time"].append(learn_time)
     history["mean_reward"].append(mean_reward)
+    history["timesteps"].append(args.timesteps_per_batch)
+
+
+    if iteration % 3 == 0:
+        if mean_reward < last_reward:
+            print "Policy is not improving. Decrease KL and increase steps."
+            if args.timesteps_per_batch < 20000:
+                args.timesteps_per_batch += args.timestep_increase
+            if args.max_kl > 0.001:
+                args.max_kl -= args.kl_decrease
+        else:
+            print "Policy is improving. Increase KL and decrease steps."
+            if args.timesteps_per_batch > 1200:
+                args.timesteps_per_batch -= args.timestep_decrease
+            if args.max_kl < 0.01:
+                args.max_kl += args.kl_increase
+        last_reward = mean_reward
 
     if iteration % 100 == 0:
         with open(args.task + "-" + str(args.num_threads), "w") as outfile:

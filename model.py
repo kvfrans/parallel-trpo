@@ -112,6 +112,10 @@ class TRPO(multiprocessing.Process):
                 # just get params, no learn
                 self.task_q.task_done()
                 self.result_q.put(self.get_policy())
+            elif paths[0] == 2:
+                # adjusting the max KL.
+                self.args.max_kl = paths[1]
+                self.task_q.task_done()
             else:
                 mean_reward = self.learn(paths)
                 self.task_q.task_done()
@@ -165,8 +169,8 @@ class TRPO(multiprocessing.Process):
         shs = 0.5 * stepdir.dot(fisher_vector_product(stepdir))
 
         lm = np.sqrt(shs / self.args.max_kl)
-        print shs
-        print lm
+        # if self.args.max_kl > 0.001:
+        #     self.args.max_kl *= self.args.kl_anneal
 
         fullstep = stepdir / lm
         negative_g_dot_steppdir = -g.dot(stepdir)
@@ -189,6 +193,7 @@ class TRPO(multiprocessing.Process):
         stats = {}
         stats["Average sum of rewards per episode"] = episoderewards.mean()
         stats["Entropy"] = entropy_after
+        stats["max KL"] = self.args.max_kl
         stats["Timesteps"] = sum([len(path["rewards"]) for path in paths])
         # stats["Time elapsed"] = "%.2f mins" % ((time.time() - start_time) / 60.0)
         stats["KL between old and new distribution"] = kl_after

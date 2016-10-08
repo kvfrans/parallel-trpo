@@ -124,10 +124,8 @@ class ParallelRollout():
 
     def rollout(self):
 
-
         # keep 20,000 timesteps per update
         num_rollouts = self.args.timesteps_per_batch / self.average_timesteps_in_episode
-        print num_rollouts
 
         for i in xrange(num_rollouts):
             self.tasks.put(1)
