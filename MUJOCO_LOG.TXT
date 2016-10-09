@@ -823,3 +823,6 @@ WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Ti
 Thu Aug 11 16:48:07 2016
 WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.0000.
 
+Mon Oct  3 10:09:32 2016
+ERROR: Expired activation key
+
