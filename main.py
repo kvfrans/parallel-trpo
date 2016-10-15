@@ -9,22 +9,24 @@ import json
 
 
 
-parser = argparse.ArgumentParser(description='Test the new good lib.')
+parser = argparse.ArgumentParser(description='TRPO.')
+# these parameters should stay the same
 parser.add_argument("--task", type=str, default='Reacher-v1')
-parser.add_argument("--timesteps_per_batch", type=int, default=10000)
-parser.add_argument("--timestep_increase", type=int, default=600)
-parser.add_argument("--timestep_decrease", type=int, default=600)
-parser.add_argument("--max_pathlength", type=int, default=1000)
-parser.add_argument("--n_iter", type=int, default=350)
+parser.add_argument("--timesteps_per_batch", type=int, default=20000)
+parser.add_argument("--n_iter", type=int, default=305)
 parser.add_argument("--gamma", type=float, default=.99)
 parser.add_argument("--max_kl", type=float, default=.001)
-parser.add_argument("--kl_increase", type=float, default=0.0005)
-parser.add_argument("--kl_decrease", type=float, default=0.0005)
 parser.add_argument("--cg_damping", type=float, default=1e-3)
-parser.add_argument("--num_threads", type=int, default=3)
+parser.add_argument("--num_threads", type=int, default=5)
 parser.add_argument("--monitor", type=bool, default=False)
-args = parser.parse_args()
 
+# change these parameters for testing
+parser.add_argument("--decay_method", type=str, default="adaptive") # adaptive, linear, exponential
+parser.add_argument("--timestep_adapt", type=int, default=600)
+parser.add_argument("--kl_adapt", type=float, default=0.0005)
+
+args = parser.parse_args()
+args.max_pathlength = gym.spec(args.task).timestep_limit
 
 learner_tasks = multiprocessing.JoinableQueue()
 learner_results = multiprocessing.Queue()
@@ -78,25 +80,39 @@ for iteration in xrange(args.n_iter):
 
     recent_total_reward += mean_reward
 
-    if iteration % 10 == 0:
-        if recent_total_reward < last_reward:
-            print "Policy is not improving. Decrease KL and increase steps."
-            if args.timesteps_per_batch < 20000:
-                args.timesteps_per_batch += args.timestep_increase
-            if args.max_kl > 0.001:
-                args.max_kl -= args.kl_decrease
-        else:
-            print "Policy is improving. Increase KL and decrease steps."
-            if args.timesteps_per_batch > 1200:
-                args.timesteps_per_batch -= args.timestep_decrease
-            if args.max_kl < 0.01:
-                args.max_kl += args.kl_increase
-        last_reward = recent_total_reward
-        recent_total_reward = 0
-        print "Current steps is " + str(args.timesteps_per_batch)
+    if args.decay_method == "adaptive":
+        if iteration % 10 == 0:
+            if recent_total_reward < last_reward:
+                print "Policy is not improving. Decrease KL and increase steps."
+                if args.timesteps_per_batch < 20000:
+                    args.timesteps_per_batch += args.timestep_adapt
+                if args.max_kl > 0.001:
+                    args.max_kl -= args.kl_adapt
+            else:
+                print "Policy is improving. Increase KL and decrease steps."
+                if args.timesteps_per_batch > 1200:
+                    args.timesteps_per_batch -= args.timestep_adapt
+                if args.max_kl < 0.01:
+                    args.max_kl += args.kl_adapt
+            last_reward = recent_total_reward
+            recent_total_reward = 0
+
+    if args.decay_method == "linear":
+        if args.timesteps_per_batch < 20000:
+            args.timesteps_per_batch += args.timestep_adapt
+        if args.max_kl > 0.001:
+            args.max_kl -= args.kl_adapt
+
+    if args.decay_method == "exponential":
+        if args.timesteps_per_batch < 20000:
+            args.timesteps_per_batch *= args.timestep_adapt
+        if args.max_kl > 0.001:
+            args.max_kl *= args.kl_adapt
+
+    print "Current steps is " + str(args.timesteps_per_batch) + " and KL is " + str(args.max_kl)
 
     if iteration % 100 == 0:
-        with open(args.task + "-" + str(args.num_threads), "w") as outfile:
+        with open("%s-%s-%f-%f" % (args.task, args.decay_method, args.kl_adapt, args.timestep_adapt), "w") as outfile:
             json.dump(history,outfile)
 
     rollouts.set_policy_weights(new_policy_weights)
