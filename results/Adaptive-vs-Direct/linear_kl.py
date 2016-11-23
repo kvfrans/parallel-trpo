@@ -10,7 +10,7 @@ rewards = []
 t = []
 r = []
 
-trials = ["Reacher-v1-linear-0.000001-0.000000","Reacher-v1-linear-0.000010-0.000000","Reacher-v1-linear-0.000100-0.000000","Reacher-v1-linear-0.001000-0.000000"]
+trials = ["Reacher-v1-linear-0.000001-0.000000","Reacher-v1-linear-0.000010-0.000000","Reacher-v1-linear-0.000100-0.000000"]
 for i in xrange(len(trials)):
     with open(trials[i]) as data_file:
         data = json.load(data_file)
