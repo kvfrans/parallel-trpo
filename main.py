@@ -12,7 +12,7 @@ import json
 parser = argparse.ArgumentParser(description='TRPO.')
 # these parameters should stay the same
 parser.add_argument("--task", type=str, default='Reacher-v1')
-parser.add_argument("--timesteps_per_batch", type=int, default=20000)
+parser.add_argument("--timesteps_per_batch", type=int, default=10000)
 parser.add_argument("--n_iter", type=int, default=305)
 parser.add_argument("--gamma", type=float, default=.99)
 parser.add_argument("--max_kl", type=float, default=.001)
@@ -21,8 +21,8 @@ parser.add_argument("--num_threads", type=int, default=5)
 parser.add_argument("--monitor", type=bool, default=False)
 
 # change these parameters for testing
-parser.add_argument("--decay_method", type=str, default="adaptive") # adaptive, linear, exponential
-parser.add_argument("--timestep_adapt", type=int, default=600)
+parser.add_argument("--decay_method", type=str, default="adaptive") # adaptive, none
+parser.add_argument("--timestep_adapt", type=int, default=300)
 parser.add_argument("--kl_adapt", type=float, default=0.0005)
 
 args = parser.parse_args()
@@ -52,7 +52,10 @@ history["timesteps"] = []
 last_reward = -1000000
 recent_total_reward = 0
 
-for iteration in xrange(args.n_iter):
+totalsteps = 0;
+
+while True:
+    iteration += 1;
 
     # runs a bunch of async processes that collect rollouts
     rollout_start = time.time()
@@ -97,23 +100,16 @@ for iteration in xrange(args.n_iter):
             last_reward = recent_total_reward
             recent_total_reward = 0
 
-    if args.decay_method == "linear":
-        if args.timesteps_per_batch < 20000:
-            args.timesteps_per_batch += args.timestep_adapt
-        if args.max_kl > 0.001:
-            args.max_kl -= args.kl_adapt
-
-    if args.decay_method == "exponential":
-        if args.timesteps_per_batch < 20000:
-            args.timesteps_per_batch *= args.timestep_adapt
-        if args.max_kl > 0.001:
-            args.max_kl *= args.kl_adapt
-
     print "Current steps is " + str(args.timesteps_per_batch) + " and KL is " + str(args.max_kl)
 
     if iteration % 100 == 0:
         with open("%s-%s-%f-%f" % (args.task, args.decay_method, args.kl_adapt, args.timestep_adapt), "w") as outfile:
             json.dump(history,outfile)
+
+    totalsteps += args.timesteps_per_batch
+
+    if totalsteps < 3000000:
+        break
 
     rollouts.set_policy_weights(new_policy_weights)
 

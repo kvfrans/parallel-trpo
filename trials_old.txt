@@ -1,0 +1,44 @@
+python main.py --task Reacher-v1 --decay_method linear --timesteps_per_batch 10000 --max_kl 0.01 --kl_adapt 0.001 --timestep_adapt 0
+python main.py --task Reacher-v1 --decay_method linear --timesteps_per_batch 10000 --max_kl 0.01 --kl_adapt 0.0001 --timestep_adapt 0
+python main.py --task Reacher-v1 --decay_method linear --timesteps_per_batch 10000 --max_kl 0.01 --kl_adapt 0.00001 --timestep_adapt 0
+python main.py --task Reacher-v1 --decay_method linear --timesteps_per_batch 10000 --max_kl 0.01 --kl_adapt 0.000001 --timestep_adapt 0
+
+python main.py --task Reacher-v1 --decay_method linear --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 0 --timestep_adapt 20
+python main.py --task Reacher-v1 --decay_method linear --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 0 --timestep_adapt 100
+python main.py --task Reacher-v1 --decay_method linear --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 0 --timestep_adapt 500
+
+python main.py --task Reacher-v1 --decay_method adaptive --timesteps_per_batch 10000 --max_kl 0.001 --kl_adapt 0.0001 --timestep_adapt 0
+python main.py --task Reacher-v1 --decay_method adaptive --timesteps_per_batch 10000 --max_kl 0.001 --kl_adapt 0.00001 --timestep_adapt 0
+python main.py --task Reacher-v1 --decay_method adaptive --timesteps_per_batch 10000 --max_kl 0.001 --kl_adapt 0.000001 --timestep_adapt 0
+
+python main.py --task Reacher-v1 --decay_method adaptive --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 0 --timestep_adapt 20
+python main.py --task Reacher-v1 --decay_method adaptive --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 0 --timestep_adapt 100
+python main.py --task Reacher-v1 --decay_method adaptive --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 0 --timestep_adapt 500
+
+do all of these, and then repeat for Swimmer, Hopper, and HalfCheetah.
+
+
+
+
+Status
+    Reacher (n_iters 305):
+        linear KL done
+        linear steps done
+        adaptive steps done
+    HalfCheetah (n_iters 2005):
+    
+
+
+
+
+
+
+
+
+# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 10000 --max_kl 0.01 --kl_adapt 0.9 --timestep_adapt 1
+# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 10000 --max_kl 0.01 --kl_adapt 0.99 --timestep_adapt 1
+# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 10000 --max_kl 0.01 --kl_adapt 0.999 --timestep_adapt 1
+#
+# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 1 --timestep_adapt 1.001
+# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 1 --timestep_adapt 1.01
+# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 1 --timestep_adapt 1.1
