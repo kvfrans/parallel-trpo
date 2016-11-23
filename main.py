@@ -54,6 +54,9 @@ recent_total_reward = 0
 
 totalsteps = 0;
 
+starting_timesteps = args.timesteps_per_batch
+starting_kl = args.max_kl
+
 while True:
     iteration += 1;
 
@@ -103,7 +106,7 @@ while True:
     print "Current steps is " + str(args.timesteps_per_batch) + " and KL is " + str(args.max_kl)
 
     if iteration % 100 == 0:
-        with open("%s-%s-%f-%f" % (args.task, args.decay_method, args.kl_adapt, args.timestep_adapt), "w") as outfile:
+        with open("%s-%s-%f-%f-%f-%f" % (args.task, args.decay_method, starting_timesteps, starting_kl, args.timestep_adapt, args.kl_adapt), "w") as outfile:
             json.dump(history,outfile)
 
     totalsteps += args.timesteps_per_batch
