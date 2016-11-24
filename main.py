@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='TRPO.')
 # these parameters should stay the same
 parser.add_argument("--task", type=str, default='Reacher-v1')
 parser.add_argument("--timesteps_per_batch", type=int, default=10000)
-parser.add_argument("--n_steps", type=int, default=4000000)
+parser.add_argument("--n_steps", type=int, default=15000000)
 parser.add_argument("--gamma", type=float, default=.99)
 parser.add_argument("--max_kl", type=float, default=.001)
 parser.add_argument("--cg_damping", type=float, default=1e-3)
