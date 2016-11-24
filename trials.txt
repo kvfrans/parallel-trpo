@@ -6,7 +6,7 @@ python main.py --task Reacher-v1 --decay_method none --timesteps_per_batch 20000
 python main.py --task Reacher-v1 --decay_method none --timesteps_per_batch 20000 --max_kl 0.005
 python main.py --task Reacher-v1 --decay_method none --timesteps_per_batch 20000 --max_kl 0.010
 
-python main.py --task Reacher-v1 --decay_method none --timesteps_per_batch 20000 --max_kl 0.001
+# python main.py --task Reacher-v1 --decay_method none --timesteps_per_batch 20000 --max_kl 0.001
 python main.py --task Reacher-v1 --decay_method none --timesteps_per_batch 10000 --max_kl 0.001
 python main.py --task Reacher-v1 --decay_method none --timesteps_per_batch 5000 --max_kl 0.001
 python main.py --task Reacher-v1 --decay_method none --timesteps_per_batch 1500 --max_kl 0.001
