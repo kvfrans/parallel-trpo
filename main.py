@@ -104,6 +104,25 @@ while True:
             last_reward = recent_total_reward
             recent_total_reward = 0
 
+
+    if args.decay_method == "adaptive-margin":
+        if iteration % 10 == 0:
+            print "Last reward: %f Scaled: %f Recent: %f" % (last_reward, last_reward * 1.1, recent_total_reward)
+            if recent_total_reward < last_reward * 1.1:
+                print "Policy is not improving. Decrease KL and increase steps."
+                if args.timesteps_per_batch < 10000:
+                    args.timesteps_per_batch += args.timestep_adapt
+                if args.max_kl > 0.001:
+                    args.max_kl -= args.kl_adapt
+            else:
+                print "Policy is improving. Increase KL and decrease steps."
+                if args.timesteps_per_batch > 1200:
+                    args.timesteps_per_batch -= args.timestep_adapt
+                if args.max_kl < 0.01:
+                    args.max_kl += args.kl_adapt
+            last_reward = recent_total_reward
+            recent_total_reward = 0
+
     print "Current steps is " + str(args.timesteps_per_batch) + " and KL is " + str(args.max_kl)
 
     if iteration % 100 == 0:
