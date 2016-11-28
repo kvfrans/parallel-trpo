@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='TRPO.')
 # these parameters should stay the same
 parser.add_argument("--task", type=str, default='Reacher-v1')
 parser.add_argument("--timesteps_per_batch", type=int, default=10000)
-parser.add_argument("--n_steps", type=int, default=6000000)
+parser.add_argument("--n_steps", type=int, default=15000000)
 parser.add_argument("--gamma", type=float, default=.99)
 parser.add_argument("--max_kl", type=float, default=.001)
 parser.add_argument("--cg_damping", type=float, default=1e-3)
@@ -107,8 +107,9 @@ while True:
 
     if args.decay_method == "adaptive-margin":
         if iteration % 10 == 0:
-            print "Last reward: %f Scaled: %f Recent: %f" % (last_reward, last_reward * 1.1, recent_total_reward)
-            if recent_total_reward < last_reward * 1.1:
+            scaled_last = last_reward + abs(last_reward * 0.05)
+            print "Last reward: %f Scaled: %f Recent: %f" % (last_reward, scaled_last, recent_total_reward)
+            if recent_total_reward < scaled_last:
                 print "Policy is not improving. Decrease KL and increase steps."
                 if args.timesteps_per_batch < 10000:
                     args.timesteps_per_batch += args.timestep_adapt
