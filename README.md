@@ -7,9 +7,7 @@ Now includes hyperparaemter adaptation as well! More more info, check [my post o
 I'm working towards the ideas at [this openAI research request](https://openai.com/requests-for-research/#parallel-trpo).
 The code is based off of [this implementation](https://github.com/ilyasu123/trpo).
 
-I'm currently working together with [Danijar](https://github.com/danijar) to improve the sample efficiency as well.
-
-[Here's a preliminary paper](http://kvfrans.com/static/trpo.pdf) describing the multiple actors setup.
+I'm currently working together with [Danijar](https://github.com/danijar) on writing an updated version of [this preliminary paper,](http://kvfrans.com/static/trpo.pdf) describing the multiple actors setup.
 
 How to run:
 ```
