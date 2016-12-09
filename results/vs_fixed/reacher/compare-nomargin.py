@@ -8,9 +8,13 @@ rewards = []
 t = []
 r = []
 
-trials = ["Swimmer-v1-none-20000.000000-0.001000-0.000000-0.000000","Swimmer-v1-none-20000.000000-0.005000-0.000000-0.000000","Swimmer-v1-none-20000.000000-0.010000-0.000000-0.000000"]
-names = ["Fixed 0.001 KL", "Fixed 0.005 KL", "Fixed 0.01 KL"]
-
+trials = ["Reacher-v1-adaptive-1000.000000-0.001000-300.000000-0.000500",
+"Reacher-v1-adaptive-1000.000000-0.001000-300.000000-0.000000",
+"Reacher-v1-adaptive-20000.000000-0.001000-0.000000-0.000500",
+"Reacher-v1-none-1500.000000-0.001000-0.000000-0.000000",
+"Reacher-v1-none-20000.000000-0.010000-0.000000-0.000000",
+"Reacher-v1-none-20000.000000-0.001000-0.000000-0.000000"]
+names = ["Adapt both", "Adapt steps", "Adapt KL", "Optimal steps (1500)", "Optimal KL (0.01)","Orginal steps/KL"]
 for i in xrange(len(trials)):
     with open(trials[i]) as data_file:
         data = json.load(data_file)
@@ -30,14 +34,14 @@ for i in xrange(len(trials)):
         avg += data["mean_reward"][e]
         avgcount += 1
 
-        if time_since > 10000:
+        if time_since > 10000 and totaltime < 4000000:
             time_since = 0
             # totaltime += 1
             if i == 0:
                 times[i].append(totaltime)
             else:
                 times[i].append(totaltime)
-            rewards[i].append(data["mean_reward"][e])
+            rewards[i].append(avg/avgcount)
 
             avg = 0
             avgcount = 0
@@ -50,5 +54,5 @@ for i in xrange(len(trials)):
 plt.xlabel("Environment Steps Seen")
 plt.ylabel("Average return")
 plt.legend(loc=4)
-plt.title("Swimmer-v1")
+plt.title("Reacher-v1")
 plt.show()
