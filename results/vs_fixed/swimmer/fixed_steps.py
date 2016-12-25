@@ -8,7 +8,7 @@ rewards = []
 t = []
 r = []
 
-trials = ["Swimmer-v1-none-10000.000000-0.001000-0.000000-0.000000"]
+trials = ["Swimmer-v1-none-20000.000000-0.001000-0.000000-0.000000","Swimmer-v1-none-10000.000000-0.001000-0.000000-0.000000","Swimmer-v1-none-5000.000000-0.001000-0.000000-0.000000","Swimmer-v1-none-1500.000000-0.001000-0.000000-0.000000"]
 names = ["Fixed 20,000 steps", "Fixed 10,000 steps", "Fixed 5,000 steps", "Fixed 1,500 steps"]
 
 for i in xrange(len(trials)):
@@ -30,7 +30,7 @@ for i in xrange(len(trials)):
         avg += data["mean_reward"][e]
         avgcount += 1
 
-        if time_since > 10000:
+        if time_since > 10000 and totaltime < 6000000:
             time_since = 0
             # totaltime += 1
             if i == 0:
@@ -50,5 +50,5 @@ for i in xrange(len(trials)):
 plt.xlabel("Environment Steps Seen")
 plt.ylabel("Average return")
 plt.legend(loc=4)
-plt.title("Reacher-v1")
+plt.title("Swimmer-v1")
 plt.show()

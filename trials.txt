@@ -1,3 +1,5 @@
+python main.py --task Reacher-v1 --decay_method adaptive-margin --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 0.0005 --timestep_adapt 300
+
 python main.py --task Reacher-v1 --decay_method adaptive --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 0.0005 --timestep_adapt 300
 python main.py --task Reacher-v1 --decay_method adaptive --timesteps_per_batch 20000 --max_kl 0.001 --kl_adapt 0.0005 --timestep_adapt 0
 python main.py --task Reacher-v1 --decay_method adaptive --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 0 --timestep_adapt 300
@@ -15,24 +17,11 @@ python main.py --task Reacher-v1 --decay_method none --timesteps_per_batch 1500 
 do all of these, and then repeat for Swimmer, Hopper, and HalfCheetah.
 
 
+Status so far:
 
+	On reacher: lower steps and higher KL always best, and adapting both works
+	On halfcheetah: lower steps better but more variation, higher KL always best, adapting both crashes, adapting KL is good
+	On swimmer: midground best for steps/KL, adapting both crashes, adapting steps is good
 
-Status
-    Reacher (n_iters 305):
-
-
-
-
-
-
-
-# python main.py --task BipedalWalker-v2 --decay_method adaptive --timesteps_per_batch 10000 --max_kl 0.001 --kl_adapt 0.0005 --timestep_adapt 300
-
-
-# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 10000 --max_kl 0.01 --kl_adapt 0.9 --timestep_adapt 1
-# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 10000 --max_kl 0.01 --kl_adapt 0.99 --timestep_adapt 1
-# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 10000 --max_kl 0.01 --kl_adapt 0.999 --timestep_adapt 1
-#
-# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 1 --timestep_adapt 1.001
-# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 1 --timestep_adapt 1.01
-# python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 1000 --max_kl 0.001 --kl_adapt 1 --timestep_adapt 1.1
+try: adapting with a margin of 10%? you need to get higher than 10% avg to adapt.
+	this should let the numbers hold in the middle (for ex. in swimmer env)

@@ -50,5 +50,5 @@ for i in xrange(len(trials)):
 plt.xlabel("Environment Steps Seen")
 plt.ylabel("Average return")
 plt.legend(loc=4)
-plt.title("Reacher-v1")
+plt.title("HalfCheetah-v1")
 plt.show()
