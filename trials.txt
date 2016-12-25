@@ -26,7 +26,7 @@ Status
 
 
 
-
+# python main.py --task BipedalWalker-v2 --decay_method adaptive --timesteps_per_batch 10000 --max_kl 0.001 --kl_adapt 0.0005 --timestep_adapt 300
 
 
 # python main.py --task Reacher-v1 --decay_method exponential --timesteps_per_batch 10000 --max_kl 0.01 --kl_adapt 0.9 --timestep_adapt 1
