@@ -84,6 +84,7 @@ while True:
     history["learn_time"].append(learn_time)
     history["mean_reward"].append(mean_reward)
     history["timesteps"].append(args.timesteps_per_batch)
+    history["maxkl"].append(args.max_kl)
 
     recent_total_reward += mean_reward
 

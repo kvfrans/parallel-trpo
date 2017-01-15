@@ -50,10 +50,15 @@ for i in xrange(len(trials)):
     t.append(np.array(times[i]))
     r.append(np.array(rewards[i]))
 
-    plt.plot(t[i],r[i],color=(1 - (i/7.0),i/7.0,1.0),label=names[i])
+    lin, = plt.plot(t[i],r[i],label=names[i])
+    if i == 0:
+        lin.remove()
+
 
 plt.xlabel("Environment Steps Seen")
 plt.ylabel("Average return")
-plt.legend(loc=4)
+leg = plt.legend(loc=4)
+for legobj in leg.legendHandles:
+    legobj.set_linewidth(2.0)
 plt.title("Reacher-v1")
 plt.show()

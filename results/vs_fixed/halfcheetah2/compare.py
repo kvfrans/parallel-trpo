@@ -8,14 +8,15 @@ rewards = []
 t = []
 r = []
 
-trials = ["HalfCheetah-v1-adaptive-1000.000000-0.001000-300.000000-0.000500",
+trials = ["HalfCheetah-v1-adaptive-margin-1000.000000-0.001000-300.000000-0.000500",
+"HalfCheetah-v1-adaptive-1000.000000-0.001000-300.000000-0.000500",
 "HalfCheetah-v1-adaptive-1000.000000-0.001000-300.000000-0.000000",
 "HalfCheetah-v1-adaptive-20000.000000-0.001000-0.000000-0.000500",
 "HalfCheetah-v1-none-1500.000000-0.001000-0.000000-0.000000",
 "HalfCheetah-v1-none-20000.000000-0.010000-0.000000-0.000000",
 "HalfCheetah-v1-none-20000.000000-0.001000-0.000000-0.000000"]
 
-names = ["Adapt both", "Adapt steps", "Adapt KL", "Optimal steps (1500)", "Optimal KL (0.01)", "Original steps/KL"]
+names = ["Adapt both w/ margin","Adapt both", "Adapt steps", "Adapt KL", "Optimal steps (1500)", "Optimal KL (0.01)", "Original steps/KL"]
 for i in xrange(len(trials)):
     with open(trials[i]) as data_file:
         data = json.load(data_file)
@@ -50,7 +51,9 @@ for i in xrange(len(trials)):
     t.append(np.array(times[i]))
     r.append(np.array(rewards[i]))
 
-    plt.plot(t[i],r[i],label=names[i])
+    lin,  = plt.plot(t[i],r[i],label=names[i])
+    if i == 0:
+        lin.remove()
 
 plt.xlabel("Environment Steps Seen")
 plt.ylabel("Average return")
