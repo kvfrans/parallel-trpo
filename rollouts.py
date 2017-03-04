@@ -99,6 +99,7 @@ class Actor(multiprocessing.Process):
                              "action_dists_logstd": np.concatenate(action_dists_logstd),
                              "rewards": np.array(rewards),
                              "actions":  np.array(actions)}
+                res = self.env.step(action)
                 return path
                 break
 
