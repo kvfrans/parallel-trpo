@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='TRPO.')
 # these parameters should stay the same
 parser.add_argument("--task", type=str, default='Reacher-v1')
 parser.add_argument("--timesteps_per_batch", type=int, default=10000)
-parser.add_argument("--n_steps", type=int, default=1000000)
+parser.add_argument("--n_steps", type=int, default=6000000)
 parser.add_argument("--gamma", type=float, default=.99)
 parser.add_argument("--max_kl", type=float, default=.001)
 parser.add_argument("--cg_damping", type=float, default=1e-3)
@@ -84,8 +84,46 @@ while True:
     history["learn_time"].append(learn_time)
     history["mean_reward"].append(mean_reward)
     history["timesteps"].append(args.timesteps_per_batch)
+    history["maxkl"].append(args.max_kl)
 
     recent_total_reward += mean_reward
+
+    if args.decay_method == "adaptive":
+        if iteration % 10 == 0:
+            if recent_total_reward < last_reward:
+                print "Policy is not improving. Decrease KL and increase steps."
+                if args.timesteps_per_batch < 20000:
+                    args.timesteps_per_batch += args.timestep_adapt
+                if args.max_kl > 0.001:
+                    args.max_kl -= args.kl_adapt
+            else:
+                print "Policy is improving. Increase KL and decrease steps."
+                if args.timesteps_per_batch > 1200:
+                    args.timesteps_per_batch -= args.timestep_adapt
+                if args.max_kl < 0.01:
+                    args.max_kl += args.kl_adapt
+            last_reward = recent_total_reward
+            recent_total_reward = 0
+
+
+    if args.decay_method == "adaptive-margin":
+        if iteration % 10 == 0:
+            scaled_last = last_reward + abs(last_reward * 0.05)
+            print "Last reward: %f Scaled: %f Recent: %f" % (last_reward, scaled_last, recent_total_reward)
+            if recent_total_reward < scaled_last:
+                print "Policy is not improving. Decrease KL and increase steps."
+                if args.timesteps_per_batch < 10000:
+                    args.timesteps_per_batch += args.timestep_adapt
+                if args.max_kl > 0.001:
+                    args.max_kl -= args.kl_adapt
+            else:
+                print "Policy is improving. Increase KL and decrease steps."
+                if args.timesteps_per_batch > 1200:
+                    args.timesteps_per_batch -= args.timestep_adapt
+                if args.max_kl < 0.01:
+                    args.max_kl += args.kl_adapt
+            last_reward = recent_total_reward
+            recent_total_reward = 0
 
     print "Current steps is " + str(args.timesteps_per_batch) + " and KL is " + str(args.max_kl)
 
